@@ -21,28 +21,26 @@ public class Obstacle : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Colisión detectada con: {other.name}");
-
         if (other.CompareTag("Player"))
         {
             SpriteRenderer playerSr = other.GetComponent<SpriteRenderer>();
 
             if (playerSr != null)
             {
-                Debug.Log($"Color del Jugador: {playerSr.color}, Color del Obstáculo: {assignedColor}");
-
-                if (playerSr.color != assignedColor)
+                if (playerSr.color != sr.color)
                 {
                     Debug.Log("❌ ¡Game Over! Los colores no coinciden.");
-                    Time.timeScale = 0; // Detener el juego
+                    GameManager.Instance.GameOver();
                     Destroy(other.gameObject); // Eliminar al jugador
                 }
                 else
                 {
-                    Debug.Log("✅ ¡Colisión correcta! Sigues en juego.");
-                    Destroy(gameObject); // Eliminar el obstáculo atravesado correctamente
+                    Debug.Log("✅ ¡Colisión correcta! +1 Punto");
+                    GameManager.Instance.AddPoint();
+                    Destroy(gameObject);
                 }
             }
         }
     }
+
 }

@@ -2,15 +2,19 @@ using UnityEngine;
 
 public class ObstacleMover : MonoBehaviour
 {
-    public float speed = 5f; // Velocidad de caída del obstáculo
+    public float fallSpeed = 5f; // Velocidad inicial
+    private float difficultyMultiplier = 0.05f; // Cuánto aumenta la velocidad con el tiempo
 
     void Update()
     {
-        // Mueve el obstáculo hacia abajo
-        transform.position += Vector3.down * speed * Time.deltaTime;
+        // Aumenta la velocidad con el tiempo
+        fallSpeed += difficultyMultiplier * Time.deltaTime;
 
-        // Si el obstáculo sale de la pantalla por la parte inferior, se destruye
-        if (transform.position.y < -6f) // Ajusta el valor según la pantalla
+        // Mueve el obstáculo hacia abajo
+        transform.position += Vector3.down * fallSpeed * Time.deltaTime;
+
+        // Si el obstáculo sale de la pantalla por abajo, se destruye
+        if (transform.position.y < -6f)
         {
             Destroy(gameObject);
         }
