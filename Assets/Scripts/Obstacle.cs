@@ -3,23 +3,39 @@ using UnityEngine;
 public class Obstacle : MonoBehaviour
 {
     private SpriteRenderer sr;
-    private Color[] colors = { Color.red, Color.green, Color.blue, Color.yellow }; // Colores disponibles
-    private Color assignedColor; // Color asignado al obstáculo
 
-    void Start()
+    public enum ObstacleType { yellow_spark, red_stone, blue_water, green_leaf }
+    public ObstacleType type; // Seleccionar el tipo de obstáculo en Unity
+
+    private Color assignedColor;
+
+    private void Start()
     {
         sr = GetComponent<SpriteRenderer>();
-        AssignRandomColor();
+        AssignColor();
     }
 
-    void AssignRandomColor()
+    void AssignColor()
     {
-        int randomIndex = Random.Range(0, colors.Length);
-        assignedColor = colors[randomIndex];
+        switch (type)
+        {
+            case ObstacleType.yellow_spark:
+                assignedColor = new Color32(255, 255, 0, 255); // Amarillo
+                break;
+            case ObstacleType.red_stone:
+                assignedColor = new Color32(255, 138, 145, 255); // Rojo
+                break;
+            case ObstacleType.blue_water:
+                assignedColor = new Color32(11, 82, 174, 255); // Azul
+                break;
+            case ObstacleType.green_leaf:
+                assignedColor = new Color32(0, 255, 0, 255); // Verde
+                break;
+        }
         sr.color = assignedColor;
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
@@ -42,5 +58,4 @@ public class Obstacle : MonoBehaviour
             }
         }
     }
-
 }
