@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer sr;
     private bool isGrounded = false;
 
+    public AudioSource jumpSound; // Sonido de salto
+    public ParticleSystem jumpParticles;
     private Color[] colors = {
         new Color32(255, 255, 0, 255),
         new Color32(255, 138, 145, 255),
@@ -16,7 +18,7 @@ public class PlayerController : MonoBehaviour
     };
 
     private int currentColorIndex = 0;
-    private float lastDirection = 1f; // Guarda la última dirección del jugador
+    private float lastDirection = 1f;
 
     void Start()
     {
@@ -39,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
     public void StopMovement()
     {
-        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Detener el movimiento al soltar la pantalla
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
     }
 
     void FlipSprite(float yRotation)
@@ -48,6 +50,35 @@ public class PlayerController : MonoBehaviour
         {
             transform.rotation = Quaternion.Euler(0, yRotation, 0);
             lastDirection = yRotation;
+        }
+    }
+
+    public void Jump()
+    {
+        if (isGrounded)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            isGrounded = false;
+
+            if (jumpSound != null)
+                jumpSound.Play(); // Sonido de salto
+
+            if (jumpParticles != null)
+            {
+                jumpParticles.Stop(); // Detiene el sistema en caso de que estuviera activo
+                jumpParticles.transform.position = new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z); // Mueve las partículas debajo del jugador
+                jumpParticles.Play(); // Reproduce las partículas correctamente
+            }
+        }
+    }
+
+
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
         }
     }
 
@@ -61,22 +92,5 @@ public class PlayerController : MonoBehaviour
     {
         currentColorIndex = (currentColorIndex - 1 + colors.Length) % colors.Length;
         sr.color = colors[currentColorIndex];
-    }
-
-    public void Jump()
-    {
-        if (isGrounded) // Solo permite saltar si está en el suelo
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            isGrounded = false;
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
     }
 }

@@ -9,10 +9,11 @@ public class GameManager : MonoBehaviour
 
     public Text scoreText;
     public Text highScoreText;
-    public GameObject gameOverPanel; // Referencia al panel de Game Over
-    public Text countdownText; // Texto para la cuenta atrás en UI
-    public AudioSource gameMusic; // Música del juego
-    public GameObject obstacleSpawner; // Referencia al spawner de enemigos
+    public GameObject gameOverPanel;
+    public Text countdownText;
+    public AudioSource gameMusic;
+    public GameObject obstacleSpawner;
+    public AudioSource collectSound; // Sonido al recoger obstáculos
 
     private int score = 0;
     private bool gameStarted = false;
@@ -31,10 +32,10 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        gameOverPanel.SetActive(false); // Asegurar que el Game Over Panel esté oculto al inicio
-        obstacleSpawner.SetActive(false); // Desactivar enemigos al inicio
-        gameMusic.Stop(); // Asegurar que la música no comienza antes de tiempo
-        StartCoroutine(StartCountdown()); // Iniciar la cuenta atrás
+        gameOverPanel.SetActive(false);
+        obstacleSpawner.SetActive(false);
+        gameMusic.Stop();
+        StartCoroutine(StartCountdown());
         UpdateUI();
     }
 
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
 
         countdownText.text = "GO!";
         yield return new WaitForSeconds(0.5f);
-        countdownText.gameObject.SetActive(false); // Ocultar la cuenta atrás
+        countdownText.gameObject.SetActive(false);
 
         StartGame();
     }
@@ -56,8 +57,8 @@ public class GameManager : MonoBehaviour
     void StartGame()
     {
         gameStarted = true;
-        obstacleSpawner.SetActive(true); // Activar generación de enemigos
-        gameMusic.Play(); // Iniciar la música
+        obstacleSpawner.SetActive(true);
+        gameMusic.Play();
     }
 
     public void AddPoint()
@@ -66,6 +67,10 @@ public class GameManager : MonoBehaviour
 
         score++;
         UpdateUI();
+
+        if (collectSound != null)
+            collectSound.Play(); // Sonido al recoger un objeto
+
         Vibrate(50);
     }
 
@@ -75,16 +80,18 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("❌ GAME OVER ❌");
         gameStarted = false;
-        obstacleSpawner.SetActive(false); // Detiene los enemigos
-        gameMusic.Stop(); // Para la música
-        Time.timeScale = 0; // Detener el juego
-        gameOverPanel.SetActive(true); // Mostrar pantalla de Game Over
+        obstacleSpawner.SetActive(false);
+        gameMusic.Stop();
+        Time.timeScale = 0;
+        gameOverPanel.SetActive(true);
+
+        Vibrate(500); // Vibración larga al perder
     }
 
     public void RestartGame()
     {
-        Time.timeScale = 1; // Restaurar la velocidad del tiempo
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reiniciar la escena
+        Time.timeScale = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void UpdateUI()
