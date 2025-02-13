@@ -2,42 +2,48 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 5f;
+    public float speed = 10f; // Aumentamos la velocidad para un tilt más sensible
     public float jumpForce = 8f;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private bool isGrounded = false;
 
-    public AudioSource jumpSound; // Sonido de salto
+    public AudioSource jumpSound;
     public ParticleSystem jumpParticles;
-    private Color[] colors = {
-        new Color32(255, 255, 0, 255),
-        new Color32(255, 138, 145, 255),
-        new Color32(11, 82, 174, 255),
-        new Color32(0, 255, 0, 255)
-    };
+    public ParticleSystem colorChangeParticles;
 
+    public Sprite[] flameSprites;
     private int currentColorIndex = 0;
     private float lastDirection = 1f;
+    private float colorChangeTimer;
+    private float colorChangeInterval;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
-        sr.color = colors[currentColorIndex];
+        sr.sprite = flameSprites[currentColorIndex];
+
+        SetRandomColorChangeTime();
     }
 
-    public void MoveLeft()
+    void Update()
     {
-        rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
-        FlipSprite(0);
+        HandleAutoColorChange();
     }
 
-    public void MoveRight()
+    public void MoveWithTilt(float tilt)
     {
-        rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
-        FlipSprite(180);
+        float tiltSensitivity = 2.0f; // Ajustado para menor velocidad
+        float smoothFactor = 0.1f; // Suaviza la transición del movimiento
+
+        float targetVelocityX = tilt * speed * tiltSensitivity;
+        rb.linearVelocity = new Vector2(Mathf.Lerp(rb.linearVelocity.x, targetVelocityX, smoothFactor), rb.linearVelocity.y);
+
+        if (tilt > 0.05f) FlipSprite(180);
+        else if (tilt < -0.05f) FlipSprite(0);
     }
+
 
     public void StopMovement()
     {
@@ -61,18 +67,20 @@ public class PlayerController : MonoBehaviour
             isGrounded = false;
 
             if (jumpSound != null)
-                jumpSound.Play(); // Sonido de salto
+                jumpSound.Play();
 
             if (jumpParticles != null)
             {
-                jumpParticles.Stop(); // Detiene el sistema en caso de que estuviera activo
-                jumpParticles.transform.position = new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z); // Mueve las partículas debajo del jugador
-                jumpParticles.Play(); // Reproduce las partículas correctamente
+                jumpParticles.Stop();
+                jumpParticles.transform.position = new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z);
+
+                var main = jumpParticles.main;
+                main.startColor = sr.color;
+
+                jumpParticles.Play();
             }
         }
     }
-
-
 
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -82,15 +90,39 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void ChangeColorForward()
+    void HandleAutoColorChange()
     {
-        currentColorIndex = (currentColorIndex + 1) % colors.Length;
-        sr.color = colors[currentColorIndex];
+        colorChangeTimer += Time.deltaTime;
+        if (colorChangeTimer >= colorChangeInterval)
+        {
+            ChangeSpriteRandomly();
+            SetRandomColorChangeTime();
+        }
     }
 
-    public void ChangeColorBackward()
+    void SetRandomColorChangeTime()
     {
-        currentColorIndex = (currentColorIndex - 1 + colors.Length) % colors.Length;
-        sr.color = colors[currentColorIndex];
+        colorChangeTimer = 0f;
+        colorChangeInterval = Random.Range(3f, 5f);
     }
+
+    public void ChangeSpriteRandomly()
+    {
+        currentColorIndex = Random.Range(0, flameSprites.Length);
+        sr.sprite = flameSprites[currentColorIndex];
+
+        if (colorChangeParticles != null)
+        {
+            colorChangeParticles.Stop();
+            colorChangeParticles.Play();
+        }
+    }
+
+    public int GetCurrentColorIndex()
+    {
+        return currentColorIndex;
+    }
+
+
+
 }

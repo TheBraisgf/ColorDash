@@ -7,7 +7,7 @@ public class Obstacle : MonoBehaviour
     public enum ObstacleType { yellow_spark, red_stone, blue_water, green_leaf }
     public ObstacleType type; // Seleccionar el tipo de obstáculo en Unity
 
-    private Color assignedColor;
+    private int assignedColorIndex; // Índice del color en lugar de color directo
 
     private void Start()
     {
@@ -20,34 +20,33 @@ public class Obstacle : MonoBehaviour
         switch (type)
         {
             case ObstacleType.yellow_spark:
-                assignedColor = new Color32(255, 255, 0, 255); // Amarillo
+                assignedColorIndex = 0;
                 break;
             case ObstacleType.red_stone:
-                assignedColor = new Color32(255, 138, 145, 255); // Rojo
+                assignedColorIndex = 1;
                 break;
             case ObstacleType.blue_water:
-                assignedColor = new Color32(11, 82, 174, 255); // Azul
+                assignedColorIndex = 2;
                 break;
             case ObstacleType.green_leaf:
-                assignedColor = new Color32(0, 255, 0, 255); // Verde
+                assignedColorIndex = 3;
                 break;
         }
-        sr.color = assignedColor;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            SpriteRenderer playerSr = other.GetComponent<SpriteRenderer>();
+            PlayerController player = other.GetComponent<PlayerController>();
 
-            if (playerSr != null)
+            if (player != null)
             {
-                if (playerSr.color != sr.color)
+                if (player.GetCurrentColorIndex() != assignedColorIndex)
                 {
                     Debug.Log("❌ ¡Game Over! Los colores no coinciden.");
-                    GameManager.Instance.GameOver();
-                    Destroy(other.gameObject); // Eliminar al jugador
+                    GameManager.Instance.HitPause(0.2f); // 🔥 Pequeña pausa de impacto
+                    GameManager.Instance.TakeDamage();
                 }
                 else
                 {
@@ -59,3 +58,4 @@ public class Obstacle : MonoBehaviour
         }
     }
 }
+

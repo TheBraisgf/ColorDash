@@ -17,7 +17,9 @@ public class GameManager : MonoBehaviour
 
     private int score = 0;
     private bool gameStarted = false;
-
+    public int maxLives = 3;  // 🔥 Número máximo de vidas
+    private int currentLives;
+    public Image screenOverlay;
     void Awake()
     {
         if (Instance == null)
@@ -32,8 +34,10 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        currentLives = maxLives;
         gameOverPanel.SetActive(false);
         obstacleSpawner.SetActive(false);
+        screenOverlay.color = new Color(0, 0, 0, 0);
         gameMusic.Stop();
         StartCoroutine(StartCountdown());
         UpdateUI();
@@ -53,7 +57,43 @@ public class GameManager : MonoBehaviour
 
         StartGame();
     }
+    public void TakeDamage()
+    {
+        currentLives--;
+        Debug.Log("💥 Golpe recibido! Vidas restantes: " + currentLives);
 
+        if (currentLives == 2)
+        {
+            CameraShake.Instance.ShakeCamera(0.2f, 0.2f); // 🔥 Pequeño shake de cámara
+        }
+        else if (currentLives == 1)
+        {
+            CameraShake.Instance.ShakeCamera(0.4f, 0.3f); // 🔥 Shake más fuerte
+            StartCoroutine(DarkenScreen()); // 🔥 Oscurecer pantalla
+        }
+        else if (currentLives <= 0)
+        {
+            CameraShake.Instance.ShakeCamera(0.6f, 0.5f); // 🔥 Shake más fuerte en Game Over
+            GameOver();
+        }
+    }
+
+    IEnumerator DarkenScreen()
+    {
+        float duration = 1f;
+        float elapsedTime = 0;
+        Color startColor = screenOverlay.color;
+        Color targetColor = new Color(0, 0, 0, 0.5f); // 🔥 Oscurece al 50%
+
+        while (elapsedTime < duration)
+        {
+            screenOverlay.color = Color.Lerp(startColor, targetColor, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        screenOverlay.color = targetColor; // Asegurar que termine en el color exacto
+    }
     void StartGame()
     {
         gameStarted = true;
@@ -78,14 +118,13 @@ public class GameManager : MonoBehaviour
     {
         if (!gameStarted) return;
 
-        Debug.Log("❌ GAME OVER ❌");
         gameStarted = false;
         obstacleSpawner.SetActive(false);
         gameMusic.Stop();
-        Time.timeScale = 0;
-        gameOverPanel.SetActive(true);
-
         Vibrate(500); // Vibración larga al perder
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0;
+
     }
 
     public void RestartGame()
@@ -104,7 +143,25 @@ public class GameManager : MonoBehaviour
         if (Application.platform == RuntimePlatform.Android)
         {
             Handheld.Vibrate();
-            Debug.Log("Vibrando por " + milliseconds + " milisegundos");
         }
     }
+
+    public void GoToMainMenu()
+    {
+        Time.timeScale = 1; // Asegurar que el juego no esté pausado
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public void HitPause(float duration)
+    {
+        StartCoroutine(Pause(duration));
+    }
+
+    private IEnumerator Pause(float duration)
+    {
+        Time.timeScale = 0.1f; // Ralentiza el tiempo
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = 1f; // Vuelve a la normalidad
+    }
+
 }
