@@ -2,19 +2,23 @@ using UnityEngine;
 
 public class LlamaAnimation : MonoBehaviour
 {
-    public float moveSpeedMin = 2f;  // Velocidad mínima de movimiento
-    public float moveSpeedMax = 5f;  // Velocidad máxima de movimiento
-    public float jumpForce = 5f;  // Fuerza del salto
-    public float jumpIntervalMin = 1f; // ⏳ Salto más frecuente
+    public float moveSpeedMin = 2f;
+    public float moveSpeedMax = 5f;
+    public float jumpForce = 5f;
+    public float jumpIntervalMin = 1f;
     public float jumpIntervalMax = 3f;
-    public float stuckTimeThreshold = 2.5f; // 🛑 Tiempo máximo sin moverse antes de forzar un salto
+    public float stuckTimeThreshold = 2.5f;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private float nextJumpTime;
     private float moveSpeed;
-    private int direction = 1;  // 1 = Derecha, -1 = Izquierda
+    private int direction = 1;
     private float lastMoveTime;
+
+    public AudioSource jumpSound; // 🎵 Sonido de salto
+    private float lastJumpSoundTime = 0f; // Para evitar spam de sonido
+    private float jumpSoundCooldown = 0.3f; // Evitar que suene demasiado seguido
 
     void Start()
     {
@@ -45,22 +49,22 @@ public class LlamaAnimation : MonoBehaviour
         if (Time.time >= nextJumpTime && rb.linearVelocity.y == 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            PlayJumpSound(); // 🔊 Sonido de salto
             SetNextJumpTime();
         }
     }
 
     void HandleStuckSituation()
     {
-        // Si ha estado parado demasiado tiempo, salta y cambia de dirección
         if (Time.time - lastMoveTime >= stuckTimeThreshold)
         {
-            direction *= -1; // Cambia la dirección
-            rb.linearVelocity = new Vector2(direction * moveSpeed, jumpForce * 1.5f); // Salta con más fuerza
+            direction *= -1;
+            rb.linearVelocity = new Vector2(direction * moveSpeed, jumpForce * 1.5f);
+            PlayJumpSound(); // 🔊 Sonido de rebote si estuvo atascado
             SetNextJumpTime();
-            lastMoveTime = Time.time; // Reinicia el contador
+            lastMoveTime = Time.time;
         }
 
-        // Si la llama está en movimiento, actualiza el tiempo de la última vez que se movió
         if (rb.linearVelocity.x != 0)
         {
             lastMoveTime = Time.time;
@@ -74,20 +78,20 @@ public class LlamaAnimation : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Si choca con otra llama, cambia de dirección y salta un poco
         if (collision.gameObject.CompareTag("Llama"))
         {
             direction = Random.value > 0.5f ? 1 : -1;
             moveSpeed = Random.Range(moveSpeedMin, moveSpeedMax);
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce / 1.5f); // Rebota levemente
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce / 1.5f);
+            PlayJumpSound(); // 🔊 Sonido al chocar con otra llama
         }
         else if (collision.gameObject.CompareTag("Pared"))
         {
-            direction *= -1; // Rebota en dirección opuesta
+            direction *= -1;
+            PlayJumpSound(); // 🔊 Sonido al rebotar en la pared
         }
         else
         {
-            // Si choca con cualquier otro objeto, rebotar aleatoriamente
             direction = Random.value > 0.5f ? 1 : -1;
         }
 
@@ -97,5 +101,15 @@ public class LlamaAnimation : MonoBehaviour
     void UpdateSpriteDirection()
     {
         sr.flipX = direction > 0 ? true : false;
+    }
+
+    void PlayJumpSound()
+    {
+        if (jumpSound != null && Time.time - lastJumpSoundTime > jumpSoundCooldown)
+        {
+            jumpSound.pitch = Random.Range(0.9f, 1.1f); // Variación de tono 🔊
+            jumpSound.Play();
+            lastJumpSoundTime = Time.time; // Evita spam de sonido
+        }
     }
 }

@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 
     public AudioSource jumpSound;
     public ParticleSystem jumpParticles;
-    public ParticleSystem colorChangeParticles;
+    // public ParticleSystem colorChangeParticles;
 
     public Sprite[] flameSprites;
     private int currentColorIndex = 0;
@@ -111,11 +111,11 @@ public class PlayerController : MonoBehaviour
         currentColorIndex = Random.Range(0, flameSprites.Length);
         sr.sprite = flameSprites[currentColorIndex];
 
-        if (colorChangeParticles != null)
-        {
-            colorChangeParticles.Stop();
-            colorChangeParticles.Play();
-        }
+        // if (colorChangeParticles != null)
+        // {
+        //     colorChangeParticles.Stop();
+        //     colorChangeParticles.Play();
+        // }
     }
 
     public int GetCurrentColorIndex()

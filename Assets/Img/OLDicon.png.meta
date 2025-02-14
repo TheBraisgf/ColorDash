@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: faed9a14ea49b464699edde06e0d94cf
+guid: 7a0776fef615cb54c84e0d5f9f31bcce
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 610379678248422071
-    second: "Dise\xF1o sin t\xEDtulo (7)_0"
+      213: -8060460541097302833
+    second: "Dise\xF1o sin t\xEDtulo (4)_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,7 +139,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "Dise\xF1o sin t\xEDtulo (7)_0"
+      name: "Dise\xF1o sin t\xEDtulo (4)_0"
       rect:
         serializedVersion: 2
         x: 0
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7ba4d1c5511887800800000000000000
-      internalID: 610379678248422071
+      spriteID: fc4a7d118dd732090800000000000000
+      internalID: -8060460541097302833
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "Dise\xF1o sin t\xEDtulo (7)_0": 610379678248422071
+      "Dise\xF1o sin t\xEDtulo (4)_0": -8060460541097302833
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

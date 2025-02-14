@@ -8,20 +8,26 @@ public class BackToMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) // Detecta el botón de atrás en Android
+        if (Application.platform == RuntimePlatform.Android)
         {
-            if (Time.time - backButtonPressedTime < doublePressTime)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                // Si el usuario presiona dos veces en menos de 0.5s, vuelve al menú
-                Debug.Log("🔙 Doble toque detectado. Volviendo al menú...");
-                SceneManager.LoadScene("MenuScene"); // Reemplaza "MenuScene" con el nombre real de tu escena de menú
+                HandleBackButton();
             }
-            else
-            {
-                // Primer toque, guarda el tiempo
-                backButtonPressedTime = Time.time;
-                Debug.Log("🔙 Primer toque detectado. Presiona otra vez para salir.");
-            }
+        }
+    }
+
+    void HandleBackButton()
+    {
+        if (Time.time - backButtonPressedTime < doublePressTime)
+        {
+            Debug.Log("🔙 Doble toque detectado. Volviendo al menú...");
+            SceneManager.LoadScene("MenuScene"); // Asegúrate de reemplazarlo con el nombre correcto
+        }
+        else
+        {
+            backButtonPressedTime = Time.time;
+            Debug.Log("🔙 Primer toque detectado. Presiona otra vez para salir.");
         }
     }
 }

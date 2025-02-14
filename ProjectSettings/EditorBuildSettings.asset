@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/SplasScene.unity
+    guid: 6c589a9c4b68fc34aa79f0dabc13ce1f
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: ee24d9cedde7ed947a8b040410908df5
   - enabled: 1
